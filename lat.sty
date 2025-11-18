@@ -1,0 +1,284 @@
+\documentclass[draftcls,a4paper,onecolumn,12pt]{article}
+
+\let\comment\undefined
+\usepackage{changes}
+\usepackage[noadjust]{cite}
+\usepackage{cite}
+\usepackage{multicol,lipsum}
+\usepackage[shortlabels]{enumitem}
+\usepackage{tikz,pgf} 
+\usetikzlibrary{arrows,automata} 
+\usepackage{verbatim}
+\usetikzlibrary{positioning,shapes.geometric}
+\usepackage{changes}
+\usepackage{amsmath}
+\usepackage{algpseudocode}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{mathtools,xparse}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{lipsum}
+\usepackage{color}
+\setlength{\parskip}{0pt}
+\usepackage{graphicx}
+\usepackage[caption=false]{subfig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage[all,poly]{xy}
+\usepackage{algpseudocode}
+\usepackage{array}
+\hyphenation{op-tical net-works semi-conduc-tor}
+\usepackage[]{siunitx}
+\usepackage{textcomp}
+\usepackage{nicematrix}
+\usepackage[english]{babel}
+\usepackage{blindtext}
+\setlength{\parskip}{10pt}
+\usepackage{adjustbox}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+
+\usepackage{graphicx} % Required for inserting images
+\usepackage{abstract} % For including keywords
+\usepackage{hyperref} % For including reference links
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}  % Handles UTF-8 input
+\usepackage{textgreek}       % For text Greek letters
+\usepackage{float}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+
+\setlength {\marginparwidth }{2cm} 
+
+\input com_notations.tex
+\input notations_yoann.tex
+\newcommand{\red}{\textcolor{red} }
+\newcommand{\blue}{\textcolor{blue} }
+\newcommand{\bzero}{\boldsymbol{0}}
+\newcommand{\ba}{\boldsymbol{\alpha}}
+\newcommand{\bgam}{\boldsymbol{\gamma}}
+\newcommand{\blambda}{\boldsymbol{\lambda}}
+\newcommand{\bfigma}{\boldsymbol{\sigma}}
+\newcommand{\bSigma}{\boldsymbol{\Sigma}}
+\newcommand{\bdelta}{\boldsymbol{\delta}}
+\newcommand{\bPhi}{\boldsymbol{\phi}}
+\newcommand{\bGamma}{\boldsymbol{\Gamma}}
+\newcommand{\bbeta}{\boldsymbol{\beta}}
+
+\begin{document}
+\title{Splice-junction Gene Sequence Classification using Artificial Neural Networks}
+\author{Student Name: [Mohammed Firaz] \\ 
+Student ID: [750011330] \\ 
+Total Number of Words: [2300]}
+\date{\today}
+
+\maketitle
+
+% -----: ABSTRACT
+\section{Abstract}
+\label{sec:abstract}
+The task of the project is to classify the Splice-junction Gene Sequences Dataset's genetic data from DNA (Deoxyribonucleic Acid) sequences. Each DNA sequence has 180 binary features, which shows the presence of a specific combination of nucleotides at various positions. The problem of is to classify the presence of the Exon-Intron (EI) boundary, the Intron-Exon (IE) boundary, or neither. Here I have used an artificial neural network (ANN) and optimized it using grid search and k-fold cross-validation to obtain stable performance. The model performance is measured using the metrics of accuracy, precision, recall, specificity, and confusion matrices, the behavior was analyzed using the learning curves and activation heatmaps. The built model had excellent accuracy and balanced classification on all the classes, providing a valuable tool to analyze gene sequences and can be used in identification of splice-junctions in DNA.
+
+\newpage
+% -----: INTRODUCTION
+\section{Introduction}
+\label{sec:introduction}
+Deoxyribonucleic acid (DNA) is the primary molecule for genetic information regarding growth, function, and reproduction of all living things \cite{alberts_molecular_2014}. DNA molecules contain four types of nucleotides they are adenine (A), cytosine (C), guanine (G), and thymine (T) they are arranged in specific orders to form genes and regulatory regions. Within genes, the gene expression process includes the transcription of RNA from DNA, followed by elimination of the introns (non-coding regions) and joining the exons (coding regions) during a mechanism called splicing.
+
+Splice-junctions are the precise borders in the DNA where exons and introns overlap. Precise identification of these borders i.e., the Exon-Intron (EI) and Intron-Exon (IE) junctions is crucial for understanding human gene structure, function, and regulation. Accurate splicing prediction junctions contribute significantly to molecular biology and bioinformatics since errors in splicing can lead to genetic disorders and impact protein synthesis. \cite{wang_alternative_2015}.
+
+The issue addressed by this project is a multiclass classification problem: from a provided DNA sequence, the aim is to decide if it forms an EI boundary, an IE boundary, or neither. This is achieved by using the Splice- junction Gene Sequences Dataset \cite{molecular_biology_(splice-junction_gene_sequences)69}, with 180 binary features for Each sequence. Each feature is the presence or absence of some combinations in nucleotides at various positions in the sequence. The target variable is categorical, indicating the splice-junction category (EI, IE, or Neither) for each sequence.
+
+This is achieved by utilizing machine-learning algorithms, which involve artificial neural networks. This work endeavours to develop a solid framework for the accurate analysis of splice-junctions to contribute further towards the overall knowledge of the gene structure and the genetic regulatory mechanisms.
+
+\newpage
+% -----: DATA PREPROCESSING AND FEATURE ENGINEERING
+\section{Data Preprocessing and Feature Engineering}
+\label{sec:data_preprocessing}
+
+\subsection{Handling Missing Data}
+\label{sec:missing_data}
+\textbf{Analysis:} The given gene sequence dataset was analyzed for missing values in each category. \\
+\textbf{Action:} The procedure to identify the missing values were performed and there were no missing values present in the data.
+
+\subsection{Normalisation/Standardisation}
+\label{sec:normalisation}
+\textbf{Analysis:} All of the attributes in the data are binary (0/1) to represent presence or absence of specific nucleotides. \\
+\textbf{Action:} Normalisation technique was not necessary, as binary features are already at the same scale. \\
+\textbf{Implementation:} Data preprocessing was done using pandas \cite{pandas} library.
+
+\subsection{Categorical Encoding}
+\label{sec:categorical_encoding}
+\textbf{Action:} The "class" target variable was label-encoded using scikit-learn \cite{scikit-learn}, where 1, 2, 3 are represented as 0, 1, 2, respectively. This encoding best fits Multi-class classification with neural networks.
+
+\subsection{Splitting the Data}
+\label{sec:splitting_data}
+\textbf{Action:} We split the dataset into the training (80\%) and test (20\%) sets with Stratified sampling to maintain class balance. This gives unbiased evaluation and prevents class imbalance during the splits  \cite{chawla2002smote}.
+
+% -----: Model Building and Training
+\section{Model Building and Training}
+\label{sec:model_building}
+
+\subsection{Model Selection}
+\label{sec:model_selection}
+
+\textbf{Choice:} A feedforward Artificial Neural Network (ANN) are well-suited for classification tasks as they can learn complex non-linear relationships between input features and output classes. The model uses multiple hidden layers, can handle high dimensional input space and can be trained and evaluated using a standard deep learning framework.  \cite{noordewier1991machine}.
+
+\textbf{Architecture:} Multi-Layer Perceptron (MLP)  possesses an input layer, as well as two hidden layers (with Batch Normalization \cite{ioffe2015batch} and dropout \cite{srivastava2014dropout} for regularization), and a output layer with softmax activation to carry out multi-class classification \cite{goodfellow2016deep}.
+
+\textbf{Implementation:} We implemented the model using TensorFlow \cite{tensorflow2015-whitepaper} and Keras \cite{keras} as the library for the neural network, with scikit-learn \cite{scikit-learn} library was utilized for pre-processing the data (\texttt{LabelEncoder}, \texttt{train\_test\_split}) and performance metrics \cite{scikit-learn-metrics}. Implementation made use of Python's built-in \texttt{itertools}\cite{python-itertools}, time, and \texttt{warnings}\cite{python-warnings} modules for hyperparameter tuning, measurement of performance, and handling of warnings. Utilized NumPy \cite{numpy} for numeric operations, Pandas \cite{pandas} for manipulation of the data, Matplotlib  \cite{matplotlib} and Seaborn \cite{seaborn} for visualization.
+
+\subsection{Hyperparameter Optimisation}
+\label{sec:hyperparameter_optimisation}
+\textbf{Method:} Manual grid search was performed for hyperparameter optimization with these search space to find the best parameters:
+\begin{itemize}
+    \item Number of hidden layers (1, 2)
+    \item Number of neurons per layer (64, 128)
+    \item Learning rate (0.001, 0.01)  (Adam optimizer \cite{kingma2014adam})
+    \item Activation function (relu)
+    \item Drop-out rate (0.2, 0.3)
+    \item Batch size (32, 64)
+\end{itemize}
+
+\textbf{Evaluation:} Each combination was evaluated with 5-fold stratified cross- validation, and the one with the best performance was selected and the space was kept to minimal to reduce the GPU utilization.
+
+\subsection{Model Training}
+\label{sec:model_training}
+\textbf{Final Model:} The optimal hyperparameters were employed for training the final model. The model was also crossvalidated for robustness with k-fold cross validation [5] for the identification of the optimum fold to finalize the assessment. The best parameter found is directly stored and applied in the model so that we don’t need to manually change it. 
+
+\textbf{Cross-Validation:} The model was also crossvalidated for robustness with k-fold cross validation \cite{scikit-learn} where the dataset is divided into 5 parts while each part serves as a validation set and rest four part as training. This is used for the identification of the optimum fold and to achieve a final model.
+
+% -----: RESULTS
+\section{Results}
+\label{sec:results}
+
+\subsection{Quantitative Evaluation}
+Artificial Neural Network (ANN) model accuracy was measured by a series of standard measures of classification including accuracy, precision, recall (sensitivity), specificity, and F1-score \cite{scikit-learn}. Each of them was computed per class (Exon-Intron (EI), Intron-Exon (IE), and Neither) as well as overall, both for the training and for the test sets.
+
+\begin{table}[h!]
+\centering
+\caption{Classification metrics for each class and overall (Test Set)}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Class} & \textbf{Precision} & \textbf{Recall (Sensitivity)} & \textbf{Specificity} & \textbf{F1-score} \\
+\hline
+EI (0)      & 0.97 & 0.97 & 0.990 & 0.97 \\
+IE (1)      & 0.97 & 0.99 & 0.992 & 0.98 \\
+Neither (2) & 0.99 & 0.98 & 0.990 & 0.99 \\
+\hline
+\textbf{Overall} & \textbf{0.99} & \textbf{0.99} & \textbf{0.99} & \textbf{0.99} \\
+\hline
+\end{tabular}
+\label{tab:metrics}
+\end{table}
+
+The model performance was evaluated with stringent evaluation measures for all the three classes (EI, IE, and Neither). The performance is excellent with all the measures (precision, recall, specificity, and F1-score) giving values of 0.97 or higher for all the classes. The "Neither" class gave the highest precision (0.99), and the "IE" class gave the highest recall (0.99). The overall 0.98 of all the above measures ensures that the model is performing equally well for all the classes with very low misclassification errors. The excellent quality of performance ensures that the model is highly reliable in differentiating the three categories of DNA sequences.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Figures/confusion_matrix.png}
+\caption{Confusion matrix for the test set predictions}
+\label{fig:confusion_matrix}
+\end{figure}
+
+Figure~\ref{fig:confusion_matrix} Confusion matrix is a graphical representation of the model predictions with the number of true and false classifications for all the classes. The graph is plotted with seaborn \cite{seaborn} for other interesting statistical plots. The majority of the predictions are on the diagonal, i.e., the ANN model is classifying most of the samples with accuracy.
+
+This confusion matrix gives the model's accuracy against the three classes. The diagonal elements (150, 151, and 325) are the correct classes predicted, and we can observe that the majority of the samples were accurately predicted. The off-diagonal elements are minimal with hardly any misclassifications of the classes with little confusion. This diagonal dominance is a sign of the model's high precision and recall across the classes. The overall distribution shows that the model is predicting almost to perfection to a vast extent with good separation of the classes with minimal errors, and can be relied upon in the use for the gene sequences' classification in practice.
+
+
+\subsection{Qualitative Evaluation}
+To further investigate the model's performance, a number of visualizations were developed including learning curves, activation heatmaps, and actual vs. predicted plots.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/training_curves.png}
+\caption{Learning curves showing training and validation accuracy and loss over epochs}
+\label{fig:learning_curves}
+\end{figure}
+
+Figure~\ref{fig:learning_curves} Training curves demonstrate the model’s learning curve over 100 epochs and early stopping is introduced when the accuracy plateues. The left graph indicates how the validation and training accuracy steadily rise in the early epochs, with the training accuracy reaching almost 0.98 and validation accuracy stabilizing at almost 0.95 with good generalization. The right graph indicates the steep decline in both the training loss and the validation loss, where the training loss continues its decreasing trend and the validation loss plateaus at a low point. Minimal overfitting is evidenced by the slight gap between the training and validation curves. These curves in total indicate that the model is learning well and is achieving high performance on both the training as well as the validation data.
+
+\begin{figure} [H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/curves2.png}
+\caption{Learning curves for fold 2}
+\label{fig:curve2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/curves3.png}
+\caption{Learning curves for fold 3}
+\label{fig:curve3}
+\end{figure}
+
+Comparatively, the other folds (2, 3, 4, 5) also show strong accuracy on train data but lesser consistency in accuracy on validation as well as specifically on validation loss, where it fluctuates or even rises at times. That is what is expected with cross-validation, as it reflects variation in data splits, but on average all of them ensure that the model is stable and generalizes well no matter what subsets of data it is given.
+
+The best-performing fold has the best learning trend, with rapid rise in training as well as validation accuracy, with these staying at high levels, and with leveling out in validation loss on a low plateau. This indicates good learning, as well as generalizing, happening, with minimal overfitting or instability.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/curves4.png}
+\caption{Learning curves for fold 4}
+\label{fig:curve4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/curves5.png}
+\caption{Learning curves for fold 5}
+\label{fig:curve5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/activation_heatmap.png}
+\caption{Activation heatmap showing neuron activation patterns in the first hidden layer}
+\label{fig:activation_heatmap}
+\end{figure}
+
+
+Figure~\ref{fig:activation_heatmap} The Activation heatmap allows us to see how well a hidden layer within a neural network is performing. Mean neural activation is represented in the graph on the left with point values close to zero, a sign that neurons are not saturating or fully inactivated. This signifies healthy learning as well as proper use of network capacity. Activation graphs over samples, as well as low overall activations with occasional high spikes, are represented in the heatmap on the right. This is a sign of sparse, rich neuron activations, capable of making the model better at learning complicated patterns within data. Overall, these visualizations ensure healthy, successful activity within neurons in a network.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Figures/actual_vs_predicted.png}
+\caption{Actual vs. predicted plots for train and test sets}
+\label{fig:actual_vs_predicted}
+\end{figure}
+
+Figure~\ref{fig:actual_vs_predicted} Actual versus predicted plots of the training and test sets indicate the accuracy of the model across three classes. True class (blue) and predicted class (orange) are labeled for each sample, and the nearly complete overlap of the two indicate that the model predictions closely follow the true labels. The good agreement with both the training and the test set indicate generalizability of the model and the fact that the model is not overfitted. The good separation of classes and the absence of glaring misclassifications also indicate the accuracy and robustness of the model in the gene sequence data classification.
+
+
+
+\textbf{Insights:}
+The above charts give general insight into the behavior of the model. The learning curves reflect the steep improvement and the high accuracy rate with little overfitting. The confusion matrix shows the correct proportion of predictions and minimal misclassifications for each of the classes. The neuron activation charts confirm that the neurons in the network are active and well-utilized, allowing effective learning. The actual vs. predicted charts finally reflect the good agreement between true and predicted classes in the training and test data, respectively, vouching for the reliability of the model and good generalizability to new, unseen data. The model performs generally well and steadily.
+
+
+\newpage
+% -----: CONCLUSION
+\section{Conclusion}
+\label{sec:conclusion}
+This project was successful in developing an end-to-end machine learning pipeline for the splice-junction gene sequences’ classification. Care was undertaken in each stage of the process, from preprocessing to rigorous model selection, hyperparameter tuning, and evaluation. The ultimate ANN model was of satisfactory performance with good accuracy, precision, recall, and specificity for the training and the test dataset. Specifically, the model did not indicate the slightest sign of overfitting nor underfitting, indicating good generalizability to new data. Informative visualizations also aided the model’s interpretability and decision-making, such as learning its behavior. Generally speaking, this study highlights the power and reliability of neural networks in biological sequence classification as a good starting point for more research and applications in genomics and related fields at the postgraduate level. The pipeline developed and results presented herein can serve as a model for more biological data analysis with machine learning approaches.
+
+\newpage
+% -----: REFERENCES
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\end{document}
